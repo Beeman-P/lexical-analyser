@@ -15,5 +15,8 @@ typedef struct _strinfo
 Status read_and_validate(char *argv[],strinfo *info);
 Status start_process(strinfo *info);
 Status open_file(strinfo *info);
-
+Status lexcial_analyser(strinfo *info);
+Status check_keyword(char *);
+Status check_identifier(char );
+Status check_operator(char *);
 #endif
