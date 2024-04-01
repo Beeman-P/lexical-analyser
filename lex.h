@@ -19,4 +19,5 @@ Status lexcial_analyser(strinfo *info);
 Status check_keyword(char *);
 Status check_identifier(char );
 Status check_operator(char *);
+Status check_operator1(char );
 #endif

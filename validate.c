@@ -29,13 +29,14 @@ Status open_file(strinfo *info)
 }
 Status check_operator(char *opt)
 {
-	char oper[50][20]={"[","]","->",".","++","--","!","~","++","--",
-		           "*","&","*","/","%","+","-",">>","<<","<<=",">>=",
-			   "==","!=","&","^","|","&&","||","?:","=","+=","-=",
-			   "*=","/=","%=","<<=",">>=","&=","^=","|=",",",";","{","}","(",")"};
-	for(int i=0;i<50;i++)
+
+	char oper[60][10]={"->","++","--","++","--",">>","<<","<<=",">>=",
+			   "==","!=","&&","||","?:","+=","-=","{","}","[","]",
+			   ".","!","~","*","&","*","%","/","+","-","&","=","^",
+			   ",",";","*=","/=","%=","<<=",">>=","&=","^=","|="};
+	for(int i=0;i<60;i++)
 	{
-		if(strcmp(opt,oper[i]) == 0)
+		if(strcmp(opt,oper[i])==0)
 		{
 			printf("Operator      :    %s\n",opt);
 			return l_true;
@@ -63,20 +64,21 @@ Status check_keyword(char *str)
 Status lexcial_analyser(strinfo *info)
 {
 	char st;
-	int i=0,j=0,k=0,l=0;
+	int i=0,j=0,k=0,l=0,m=0;
 	int flag=0;
 	char str[30];
 	char n[20];
 	char con[20];
 	char hd[20];
+	char lt[50];
 	while((st=fgetc(info->str_edit))!=-1)
 	{
-		  if(isalpha(st))
+		if(isalpha(st))
 		  {
 			  str[i++]=st;
 			  while(isalpha(st=fgetc(info->str_edit)))
 			  {
-				  str[i++]=st;
+				        str[i++]=st;
 			  }
 			  str[i]='\0';
 			  if(strcmp(str,"sizeof")==0)
@@ -85,17 +87,28 @@ Status lexcial_analyser(strinfo *info)
 			  }
 			  else
 			  {
-			  if(check_keyword(str)==l_true)
-			   {
-	                 	printf("Keyword       :    %s\n",str);
-			   }
+				  if(check_keyword(str)==l_true)
+				  {
+					  printf("Keyword       :    %s\n",str);
+				  }
+				  else if(st=='(' || st=='_') 
+				  {
+					  printf("Indetifier    :    %s\n",str);
+				  }
+				  else
+				  {
+					  printf("variable      :    %s\n",str);
+				  }
+			  }
 			  i=0;
 			  fseek(info->str_edit, -1, SEEK_CUR);
-			  }
 		  }
-		  else if (st=='#')
+	      else if(ispunct(st))
 		  {
+		         if (st=='#')
+		           {
 			  hd[l++]=st;
+
 			  while((st=fgetc(info->str_edit))!='\n')
 			  {
 				  hd[l++]=st;
@@ -104,10 +117,28 @@ Status lexcial_analyser(strinfo *info)
 			  l=0;
 			  fseek(info->str_edit,-1,SEEK_CUR);
 			  printf("Preprocess    :    %s\n",hd);
-		  }
-	      else if(ispunct(st))
-		  {
+	                   }
+			 else if (st==')'|| st == '(')
+			 {
+				 printf("Operator      :     %c\n",st);
+				 if((st=getc(info->str_edit))=='"')
+				 {
+					 lt[m++]=st;
+					 while((st=getc(info->str_edit))!='"')
+					 {
+						 lt[m++]=st;
+					 }
+					 lt[m++]='"',lt[m]='\0';
+					 m=0;
+			                 fseek(info->str_edit,1,SEEK_CUR);
+					 printf("Literal       :    %s\n",lt);
+				 }
+			         fseek(info->str_edit,-1,SEEK_CUR);
+			 }
+			  else
+			  {
 			  n[j++]=st;
+
 			  while(ispunct(st=fgetc(info->str_edit)))
 			  {
 				  n[j++]=st;
@@ -116,6 +147,7 @@ Status lexcial_analyser(strinfo *info)
 			  check_operator(n);
 			  j=0;
 			  fseek(info->str_edit, -1, SEEK_CUR);
+			  }
 		  }
 	      else if(isdigit(st))
 		  {
@@ -128,9 +160,9 @@ Status lexcial_analyser(strinfo *info)
 			  k=0;
 			  fseek(info->str_edit, -1, SEEK_CUR);
 			  printf("Constant      :     %s\n",con);
-		  }	
-	
+		  } 	
 	}
+	return l_true;
 
 }
 Status start_process(strinfo *info)
@@ -140,7 +172,6 @@ Status start_process(strinfo *info)
 	{
 		return l_true;
 	}
-
 		
 }
         
